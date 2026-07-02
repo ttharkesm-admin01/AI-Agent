@@ -1,167 +1,45 @@
-# AI-Agent
+# คลังความรู้ส่วนตัว (Personal Knowledge Base)
 
-CLI tool-using AI agent powered by Claude — with a drop-in **skills** system
-compatible with the `SKILL.md` convention (works with skills from
-[thananon/9arm-skills](https://github.com/thananon/9arm-skills) and similar
-collections).
+เว็บโน้ต/คู่มือส่วนตัว สร้างด้วย [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
+เผยแพร่อัตโนมัติบน **GitHub Pages** — ฟรี และแก้ไขผ่านเว็บ GitHub ได้จากทุกเครื่อง
+(รวมถึงคอมที่ติดตั้งโปรแกรมไม่ได้)
 
-เอเจนต์ AI แบบ CLI ที่ใช้ Claude API เรียกใช้เครื่องมือ (รันคำสั่ง shell,
-อ่าน/เขียน/แก้ไฟล์) และโหลด "สกิล" จากโฟลเดอร์ `SKILL.md` ได้แบบเดียวกับ
-Claude Code — เอาสกิลจาก repo อย่าง `9arm-skills` มาวางใช้ได้เลย
+🌐 **เว็บ:** https://ttharkesm-admin01.github.io/AI-Agent/
 
-## Features / ความสามารถ
+## วิธีทำงาน
 
-- **Tool-using agent loop** — Claude decides when to run `bash`, `read_file`,
-  `write_file`, `edit_file`, `list_dir`; results stream back into the loop
-  until the task is done.
-- **Skills (progressive disclosure)** — only each skill's name + description
-  is in the system prompt; the agent calls `read_skill` to load the full
-  instructions when a task matches. Ships with a `scrutinize` skill for
-  reviewing plans/PRs/code.
-- **Safety confirmations** — `bash` / `write_file` / `edit_file` ask y/N
-  before executing (disable with `-y` or `AI_AGENT_AUTO_APPROVE=1`).
-  File tools are confined to the working directory.
-- **Streaming + adaptive thinking** — default model `claude-opus-4-8` with
-  `thinking: adaptive` and `effort: high`; system prompt is prompt-cached.
+1. โน้ตทุกอันคือไฟล์ Markdown ใน `docs/`
+2. แก้ไข/เพิ่มไฟล์ผ่านเว็บ GitHub แล้ว commit เข้า `main`
+3. GitHub Actions (`.github/workflows/deploy.yml`) build แล้ว deploy ให้อัตโนมัติ
+   ภายใน 1–2 นาที
 
-## Install / ติดตั้ง
+รายละเอียดวิธีเพิ่มโน้ต หมวดหมู่ และ Markdown ที่ใช้บ่อย อยู่ในหน้า
+[วิธีใช้งาน](docs/guide/add-note.md) ของตัวเว็บเอง
+
+## โครงสร้าง
+
+```
+mkdocs.yml            # ตั้งค่าเว็บ + เมนู (nav)
+requirements.txt      # mkdocs-material
+docs/
+  index.md            # หน้าแรก
+  guide/add-note.md   # คู่มือการใช้งาน
+  work/               # หมวด: งาน
+  learning/           # หมวด: เรียนรู้
+.github/workflows/deploy.yml   # build + deploy GitHub Pages อัตโนมัติ
+.devcontainer/        # เปิด Codespace เพื่อ preview เว็บสด ๆ (ถ้าต้องการ)
+```
+
+## Preview ก่อนเผยแพร่ (ไม่บังคับ)
+
+เปิด Codespace (**Code → Codespaces → Create codespace**) แล้ว:
 
 ```bash
-git clone https://github.com/ttharkesm-admin01/AI-Agent.git
-cd AI-Agent
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e .
+mkdocs serve -a 0.0.0.0:8000
 ```
 
-Set your API key (or use `ant auth login` — the SDK picks up the profile):
+## หมายเหตุ
 
-```bash
-cp .env.example .env   # then edit, or:
-export ANTHROPIC_API_KEY=sk-ant-...
-```
-
-## Usage / วิธีใช้
-
-```bash
-# Interactive REPL / โหมดโต้ตอบ
-ai-agent
-
-# One-shot / สั่งครั้งเดียว
-ai-agent "list the files here and summarize what this project does"
-
-# List discovered skills / ดูสกิลทั้งหมด
-ai-agent --list-skills
-
-# Skip confirmations, pick model/effort
-ai-agent -y --model claude-opus-4-8 --effort medium "run the tests and fix failures"
-```
-
-Example — use the bundled review skill / ตัวอย่างใช้สกิล `scrutinize`:
-
-```bash
-ai-agent "use the scrutinize skill to review the diff in my last commit"
-```
-
-## Adding skills / เพิ่มสกิล
-
-A skill is a folder containing `SKILL.md` with YAML frontmatter:
-
-```markdown
----
-name: my-skill
-description: When to use this skill (the agent reads this to decide).
----
-
-Full instructions the agent follows after loading the skill...
-```
-
-Put skill folders in this repo's `skills/`, in `./skills` of whatever
-directory you run `ai-agent` from, or point `AI_AGENT_SKILLS_DIR` at a
-collection:
-
-```bash
-git clone https://github.com/thananon/9arm-skills ~/9arm-skills
-export AI_AGENT_SKILLS_DIR=~/9arm-skills/skills
-ai-agent --list-skills
-```
-
-Skill directories are scanned recursively, so category layouts like
-`skills/engineering/scrutinize/SKILL.md` work. On name collisions the
-later directory wins (user skills override bundled ones).
-
-## Use on GitHub web — no local install / ใช้ผ่านเว็บ GitHub ไม่ต้องลงเครื่อง
-
-สำหรับเครื่องที่ติดตั้งโปรแกรมเองไม่ได้ (เช่น คอมบริษัท) ใช้ได้ 2 ทาง:
-
-### 1) GitHub Codespaces — โหมดโต้ตอบเต็มรูปแบบในเบราว์เซอร์
-
-1. เพิ่ม API key ครั้งเดียว: GitHub → รูปโปรไฟล์ → **Settings → Codespaces →
-   Secrets → New secret** ชื่อ `ANTHROPIC_API_KEY` แล้วเลือก repo นี้
-2. ที่หน้า repo กดปุ่ม **Code → Codespaces → Create codespace**
-3. รอเครื่องเปิด (มี `.devcontainer` ให้แล้ว — ติดตั้ง `ai-agent` อัตโนมัติ)
-   แล้วพิมพ์ในเทอร์มินัล:
-
-   ```bash
-   ai-agent
-   ```
-
-### 2) GitHub Actions — สั่งงานจากหน้าเว็บ กดปุ่มเดียว
-
-1. เพิ่ม secret ของ repo: **Settings → Secrets and variables → Actions →
-   New repository secret** ชื่อ `ANTHROPIC_API_KEY`
-2. ไปที่แท็บ **Actions → ai-agent → Run workflow** พิมพ์ prompt ที่ต้องการ
-   (ติ๊ก *commit changes* ถ้าอยากให้ agent commit ไฟล์ที่แก้กลับเข้า branch)
-3. เปิดดูผลลัพธ์ใน log ของ job
-
-> Actions เหมาะกับงานสั่งครั้งเดียวจบ (one-shot) ส่วน Codespaces เหมาะกับ
-> การคุยโต้ตอบและงานที่ต้องยืนยันทีละขั้น
-
-## Corporate network (e.g. CPF office) / ใช้ในเน็ตบริษัท
-
-ถ้าเครื่องบริษัทต้องออกเน็ตผ่าน proxy ให้ตั้งค่า:
-
-```bash
-export HTTPS_PROXY=http://proxy.your-company.com:8080
-# ถ้าบริษัทมี gateway ภายในสำหรับ Anthropic API:
-export ANTHROPIC_BASE_URL=https://your-internal-gateway.example.com
-```
-
-The client is built with the SDK's `DefaultHttpxClient(proxy=...)` so default
-timeouts/retries are preserved. If TLS interception is used on your network,
-set `SSL_CERT_FILE` to your company CA bundle.
-
-> หมายเหตุ: อย่า commit ไฟล์ `.env` (มี API key) — มันถูก ignore ไว้แล้วใน
-> `.gitignore` และควรตรวจนโยบายการใช้ AI ของบริษัทก่อนใช้กับข้อมูลภายใน
-
-## Configuration / ตัวแปรทั้งหมด
-
-| Env var | Default | Meaning |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | — | API key (or use an `ant auth login` profile) |
-| `AI_AGENT_MODEL` | `claude-opus-4-8` | Model ID |
-| `AI_AGENT_EFFORT` | `high` | `low` / `medium` / `high` / `xhigh` / `max` |
-| `AI_AGENT_SKILLS_DIR` | — | Extra skills directory |
-| `AI_AGENT_AUTO_APPROVE` | off | `1` = don't ask y/N before bash/write/edit |
-| `HTTPS_PROXY` | — | Corporate proxy |
-| `ANTHROPIC_BASE_URL` | — | Alternate API endpoint / internal gateway |
-
-## Development / พัฒนา
-
-```bash
-pip install -e ".[dev]"
-pytest            # unit tests need no API key
-```
-
-Project layout:
-
-```
-ai_agent/
-  agent.py    # streaming agentic loop (tool_use -> execute -> tool_result)
-  tools.py    # tool schemas + local execution, path confinement, confirmations
-  skills.py   # SKILL.md discovery + frontmatter parsing
-  config.py   # env-driven config, proxy-aware client factory
-  cli.py      # REPL / one-shot / --list-skills
-skills/
-  scrutinize/ # bundled review skill
-tests/
-```
+- GitHub Pages ฟรีสำหรับ repo **public** (repo private ต้องใช้แพลน Pro/Team)
+- โปรเจคก่อนหน้าใน repo นี้ (AI-Agent CLI) ยังอยู่ใน git history —
+  ดูได้ที่ commit `9902ee7`/`9126e45` หรือ PR #1
