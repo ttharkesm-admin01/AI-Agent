@@ -1,0 +1,53 @@
+site_name: คลังความรู้ของฉัน
+site_description: โน้ตและคู่มือส่วนตัว — เขียนเป็น Markdown เผยแพร่อัตโนมัติด้วย GitHub Pages
+site_url: https://ttharkesm-admin01.github.io/AI-Agent/
+repo_url: https://github.com/ttharkesm-admin01/AI-Agent
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: th
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: สลับเป็นโหมดมืด
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: สลับเป็นโหมดสว่าง
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - หน้าแรก: index.md
+  - วิธีใช้งาน:
+      - เพิ่ม/แก้ไขโน้ต: guide/add-note.md
+  - งาน: work/index.md
+  - เรียนรู้: learning/index.md
