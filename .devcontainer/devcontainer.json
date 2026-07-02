@@ -1,0 +1,15 @@
+{
+  "name": "AI-Agent",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -e '.[dev]'",
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Anthropic API key used by ai-agent (get one at https://platform.claude.com/)"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  }
+}

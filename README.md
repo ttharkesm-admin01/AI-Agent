@@ -89,6 +89,33 @@ Skill directories are scanned recursively, so category layouts like
 `skills/engineering/scrutinize/SKILL.md` work. On name collisions the
 later directory wins (user skills override bundled ones).
 
+## Use on GitHub web — no local install / ใช้ผ่านเว็บ GitHub ไม่ต้องลงเครื่อง
+
+สำหรับเครื่องที่ติดตั้งโปรแกรมเองไม่ได้ (เช่น คอมบริษัท) ใช้ได้ 2 ทาง:
+
+### 1) GitHub Codespaces — โหมดโต้ตอบเต็มรูปแบบในเบราว์เซอร์
+
+1. เพิ่ม API key ครั้งเดียว: GitHub → รูปโปรไฟล์ → **Settings → Codespaces →
+   Secrets → New secret** ชื่อ `ANTHROPIC_API_KEY` แล้วเลือก repo นี้
+2. ที่หน้า repo กดปุ่ม **Code → Codespaces → Create codespace**
+3. รอเครื่องเปิด (มี `.devcontainer` ให้แล้ว — ติดตั้ง `ai-agent` อัตโนมัติ)
+   แล้วพิมพ์ในเทอร์มินัล:
+
+   ```bash
+   ai-agent
+   ```
+
+### 2) GitHub Actions — สั่งงานจากหน้าเว็บ กดปุ่มเดียว
+
+1. เพิ่ม secret ของ repo: **Settings → Secrets and variables → Actions →
+   New repository secret** ชื่อ `ANTHROPIC_API_KEY`
+2. ไปที่แท็บ **Actions → ai-agent → Run workflow** พิมพ์ prompt ที่ต้องการ
+   (ติ๊ก *commit changes* ถ้าอยากให้ agent commit ไฟล์ที่แก้กลับเข้า branch)
+3. เปิดดูผลลัพธ์ใน log ของ job
+
+> Actions เหมาะกับงานสั่งครั้งเดียวจบ (one-shot) ส่วน Codespaces เหมาะกับ
+> การคุยโต้ตอบและงานที่ต้องยืนยันทีละขั้น
+
 ## Corporate network (e.g. CPF office) / ใช้ในเน็ตบริษัท
 
 ถ้าเครื่องบริษัทต้องออกเน็ตผ่าน proxy ให้ตั้งค่า:
